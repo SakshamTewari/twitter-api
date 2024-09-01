@@ -18,6 +18,17 @@ model User {
   image      String?
   bio        String?
   isVerified Boolean @default(false)
+  tweets     Tweet[]
 }
 
-model Tweet {}
+model Tweet {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  content    String
+  image      String?
+  impression Int      @default(0)
+
+  userId Int // One USer to Many Tweets relation
+  user   User @relation(fields: [userId], references: [id])
+}
