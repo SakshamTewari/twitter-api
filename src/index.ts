@@ -1,10 +1,16 @@
 import { error } from 'console';
 import express from 'express';
 import userRoutes from './routes/userRoutes';
+import tweetRoutes from './routes/tweetRoutes';
 
 const app = express();
 app.use(express.json());
+
+// User route
 app.use('/user', userRoutes);
+
+// Tweet route
+app.use('/tweet', tweetRoutes);
 
 // Home
 app.get('/', (req,res) => {
