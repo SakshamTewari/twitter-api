@@ -1,0 +1,9 @@
+npx prisma migrate dev --name "init" (to generate migration file named "init")
+npm install @prisma/client
+npx prisma studio (to run prisma client)
+npx prisma generate (to re-establish connection between schema.prisma and .env file)
+
+// POST command we can use from terminal itself [No Postman required]
+curl -X POST -H "Content-Type: application/json" \
+-d "{\"name\": \"Elon Musk\", \"email\": \"doge@twitter.com\", \"username\": \"elon\"}" \
+http://localhost:3000/user/
