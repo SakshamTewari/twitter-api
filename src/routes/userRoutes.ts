@@ -1,6 +1,8 @@
 import { Router } from "express";
+import { PrismaClient } from "@prisma/client";
 
 const router = Router();
+const prisma = new PrismaClient();
 
 // User CRUD
 
@@ -10,14 +12,17 @@ router.post('/', (req, res) => {
 });
 
 // List USers
-router.get('/', (req, res) => {
-    res.status(501).json({error: 'Not implemented'});
+router.get('/', async (req, res) => {
+    const allUsers = await prisma.user.findMany();
+    // res.status(501).json({error: 'Not implemented'});
+    res.json(allUsers);
 });
 
 // get one user
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     const {id} = req.params;
-    res.status(501).json({error: `Not implemented: ${id}`});
+    const user = await prisma.user.findUnique({where: {id: Number(id)}}); // in params 'id' is a string type, but in our model, id is Int type, so convert it to Number
+    res.json(user);
 });
 
 // update user
