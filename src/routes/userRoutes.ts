@@ -7,8 +7,17 @@ const prisma = new PrismaClient();
 // User CRUD
 
 // Create User
-router.post('/', (req, res) => {
-    res.status(501).json({error: 'Not implemented'});
+router.post('/', async (req, res) => {
+    const {email, name, username} = req.body;
+    // console.log(email, name, username);
+    const user = await prisma.user.create({
+        data:{
+            name,
+            email,
+            username
+        },
+    });    // check if the data sequence should be same as what we pass in curl
+    res.json(user);
 });
 
 // List USers
