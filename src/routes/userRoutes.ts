@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -8,42 +8,59 @@ const prisma = new PrismaClient();
 
 // Create User
 router.post('/', async (req, res) => {
-    const {email, name, username} = req.body;
-    // console.log(email, name, username);
+  const { email, name, username } = req.body;
+  // console.log(email, name, username);
+  try {
     const user = await prisma.user.create({
-        data:{
-            name,
-            email,
-            username
-        },
-    });    // check if the data sequence should be same as what we pass in curl
+      data: {
+        name,
+        username,
+        email,
+      },
+    }); // check if the data sequence should be same as what we pass in curl
     res.json(user);
+  } catch (e) {
+    const errorMessage = (e as Error).message;
+    res.status(400).json({ error: errorMessage });
+  }
 });
 
 // List USers
 router.get('/', async (req, res) => {
-    const allUsers = await prisma.user.findMany();
-    // res.status(501).json({error: 'Not implemented'});
-    res.json(allUsers);
+  const allUsers = await prisma.user.findMany();
+  // res.status(501).json({error: 'Not implemented'});
+  res.json(allUsers);
 });
 
 // get one user
 router.get('/:id', async (req, res) => {
-    const {id} = req.params;
-    const user = await prisma.user.findUnique({where: {id: Number(id)}}); // in params 'id' is a string type, but in our model, id is Int type, so convert it to Number
-    res.json(user);
+  const { id } = req.params;
+  const user = await prisma.user.findUnique({ where: { id: Number(id) } }); // in params 'id' is a string type, but in our model, id is Int type, so convert it to Number
+  res.json(user);
 });
 
 // update user
-router.put('/:id', (req, res) => {
-    const {id} = req.params;
-    res.status(501).json({error: `Not implemented: ${id}`});
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  // only bio, name, image are allowed to be updated
+  const { bio, name, image } = req.body;
+
+  try {
+    const result = await prisma.user.update({
+      where: { id: Number(id) },
+      data: { bio, name, image },
+    });
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: 'Failed to update the user' });
+  }
+  res.status(501).json({ error: `Not implemented: ${id}` });
 });
 
 // delete user
 router.delete('/:id', (req, res) => {
-    const {id} = req.params;
-    res.status(501).json({error: `Not implemented: ${id}`});
+  const { id } = req.params;
+  res.status(501).json({ error: `Not implemented: ${id}` });
 });
 
 export default router;
