@@ -58,9 +58,10 @@ router.put('/:id', async (req, res) => {
 });
 
 // delete user
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  res.status(501).json({ error: `Not implemented: ${id}` });
+  await prisma.user.delete({where: {id: Number(id)}});
+  res.sendStatus(200);
 });
 
 export default router;
