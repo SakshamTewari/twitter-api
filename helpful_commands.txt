@@ -7,3 +7,12 @@ npx prisma generate (to re-establish connection between schema.prisma and .env f
 curl -X POST -H "Content-Type: application/json" \
 -d "{\"name\": \"Elon Musk\", \"email\": \"doge@twitter.com\", \"username\": \"elon\"}" \
 http://localhost:3000/user/
+
+
+//PUT command (to update)
+curl -X PUT -H "Content-Type: application/json" \
+-d '{"name": "Saksham", "bio": "Engineer"}' \
+http://localhost:3000/user/1
+
+//DELETE command
+curl -X DELETE http://localhost:3000/user/3
