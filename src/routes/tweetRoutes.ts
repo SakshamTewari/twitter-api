@@ -59,9 +59,10 @@ router.put('/:id', async (req, res) => {
 });
 
 // delete tweet
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  res.status(501).json({ error: `Not implemented: ${id}` });
+  await prisma.tweet.delete({where: {id: Number(id)}});
+  res.sendStatus(200);
 });
 
 export default router;
