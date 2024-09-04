@@ -25,8 +25,10 @@ router.post('/', async (req, res) => {
 });
 
 // List tweets
+// we can include relational values as well (like user) and even select what user values we need
+// for tweets, we can include user info as this would not be information heavy
 router.get('/', async (req, res) => {
-  const allTweets = await prisma.tweet.findMany();
+  const allTweets = await prisma.tweet.findMany({ include: { user: true } });
   res.json(allTweets);
 });
 
@@ -61,7 +63,7 @@ router.put('/:id', async (req, res) => {
 // delete tweet
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  await prisma.tweet.delete({where: {id: Number(id)}});
+  await prisma.tweet.delete({ where: { id: Number(id) } });
   res.sendStatus(200);
 });
 
