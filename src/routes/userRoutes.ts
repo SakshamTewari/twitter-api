@@ -35,7 +35,10 @@ router.get('/', async (req, res) => {
 // get one user
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const user = await prisma.user.findUnique({ where: { id: Number(id) } }); // in params 'id' is a string type, but in our model, id is Int type, so convert it to Number
+  const user = await prisma.user.findUnique({
+    where: { id: Number(id) },
+    include: { tweets: true },
+  }); // in params 'id' is a string type, but in our model, id is Int type, so convert it to Number
 
   if (!user) {
     return res.status(404).json({ error: 'User Not found!!' });
