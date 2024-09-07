@@ -6,6 +6,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 const EMAIL_TOKEN_EXPIRATION_MINUTES = 10;
+const AUTHENTICATION_EXPIRATION_HOURS = 12;
 
 // Generate a random 8-digit number as the email token
 function generateEmailToken(): string {
@@ -87,7 +88,19 @@ router.post('/authenticate', async (req, res) => {
   }
 
   //   console.log(email, emailToken);
+  //   we are sure that the user is owner of the token
 
+  // generate an API token (JWT)
+  const expiration = new Date(
+    new Date().getTime() + EMAIL_TOKEN_EXPIRATION_MINUTES * 60 * 1000,
+  );
+
+  const apiToken = await prisma.token.create({
+    data: {
+      type: 'API',
+      expiration,
+    },
+  });
   res.sendStatus(200);
 });
 
