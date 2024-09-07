@@ -39,6 +39,7 @@ router.post('/login', async (req, res) => {
         },
       },
     });
+    res.sendStatus(200);
   } catch (e) {
     console.log(e);
     res
@@ -51,6 +52,27 @@ router.post('/login', async (req, res) => {
 
 // Validate the emailToken
 // Generate a long-lived JWT token
-router.post('/authenticate', async (req, res) => {});
+router.post('/authenticate', async (req, res) => {
+  const { email, emailToken } = req.body;
+  // verify emailToken from the database
+  const dbEmailToken = await prisma.token.findUnique({
+    where: {
+      emailToken,
+    },
+    // include user details so it verifies with the email
+    include: {
+      user: true,
+    },
+  });
+
+  if (!dbEmailToken) {
+    res.sendStatus(401); //un-authenticated
+  }
+  res.sendStatus(200);
+
+  //   console.log(email, emailToken);
+
+  res.sendStatus(200);
+});
 
 export default router;
