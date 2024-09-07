@@ -11,15 +11,38 @@ datasource db {
 }
 
 model User {
-  id         Int     @id @default(autoincrement())
-  email      String  @unique
-  name       String
-  username   String  @unique
+  id    Int    @id @default(autoincrement())
+  email String @unique
+
+  name       String? //optional because at the time of login, user only needs to provide email for password less authentication
+  username   String? @unique
   image      String?
   bio        String?
   isVerified Boolean @default(false)
-  tweets     Tweet[]
+
+  tweets Tweet[]
+  tokens Token[]
 }
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type       String // Email , JWT (or API)  || //SqlLite does not have enums, so using string type for now 
+  emailToken String? @unique //as user will provide that
+
+  valid      Boolean  @default(true) // when we create a token, we expect it to be valid
+  expiration DateTime
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+// enum TokenType {
+//   Email
+//   API
+// }
 
 model Tweet {
   id         Int      @id @default(autoincrement())
