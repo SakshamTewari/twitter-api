@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { error } from 'console';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -55,20 +56,30 @@ router.post('/login', async (req, res) => {
 router.post('/authenticate', async (req, res) => {
   const { email, emailToken } = req.body;
   // verify emailToken from the database
-  const dbEmailToken = await prisma.token.findUnique({
-    where: {
-      emailToken,
-    },
-    // include user details so it verifies with the email
-    include: {
-      user: true,
-    },
-  });
+  try {
+    const dbEmailToken = await prisma.token.findUnique({
+      where: {
+        emailToken,
+      },
+      // include user details so it verifies with the email
+      include: {
+        user: true,
+      },
+    });
 
-  if (!dbEmailToken) {
-    res.sendStatus(401); //un-authenticated
+    // if we do not find the token or token found but not valid, then return
+    if (!dbEmailToken || !dbEmailToken.valid) {
+      return res.sendStatus(401); //un-authorised
+    }
+
+    // if token expired
+    if (dbEmailToken.expiration < new Date()) {
+      return res.status(401).json({ error: 'Token Expired !!' });
+    }
+    res.sendStatus(200);
+  } catch (e) {
+    res.status(400).json({ error: 'Authentication failed' });
   }
-  res.sendStatus(200);
 
   //   console.log(email, emailToken);
 
