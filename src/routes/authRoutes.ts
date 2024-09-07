@@ -76,6 +76,11 @@ router.post('/authenticate', async (req, res) => {
     if (dbEmailToken.expiration < new Date()) {
       return res.status(401).json({ error: 'Token Expired !!' });
     }
+
+    // check if the email from body is of the user who is providing the token
+    if (dbEmailToken?.user?.email !== email) {
+      return res.status(401);
+    }
     res.sendStatus(200);
   } catch (e) {
     res.status(400).json({ error: 'Authentication failed' });
