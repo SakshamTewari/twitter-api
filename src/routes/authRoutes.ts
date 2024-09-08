@@ -82,26 +82,38 @@ router.post('/authenticate', async (req, res) => {
     if (dbEmailToken?.user?.email !== email) {
       return res.status(401);
     }
+
+    //   we are sure that the user is owner of the token
+
+    // generate an API token (JWT)
+    const expiration = new Date(
+      new Date().getTime() + EMAIL_TOKEN_EXPIRATION_MINUTES * 60 * 60 * 1000,
+    );
+
+    const apiToken = await prisma.token.create({
+      data: {
+        type: 'API',
+        expiration,
+        user: {
+          connect: {
+            email,
+          },
+        },
+      },
+    });
+
+    // Invalidate the emailToken after generating JWT so user cannot use that again
+    await prisma.token.update({
+      where: {
+        id: dbEmailToken.id,
+      },
+      data: { valid: false },
+    });
+
     res.sendStatus(200);
   } catch (e) {
     res.status(400).json({ error: 'Authentication failed' });
   }
-
-  //   console.log(email, emailToken);
-  //   we are sure that the user is owner of the token
-
-  // generate an API token (JWT)
-  const expiration = new Date(
-    new Date().getTime() + EMAIL_TOKEN_EXPIRATION_MINUTES * 60 * 1000,
-  );
-
-  const apiToken = await prisma.token.create({
-    data: {
-      type: 'API',
-      expiration,
-    },
-  });
-  res.sendStatus(200);
 });
 
 export default router;
