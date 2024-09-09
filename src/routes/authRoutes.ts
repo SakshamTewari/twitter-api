@@ -1,16 +1,26 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { error } from 'console';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 const prisma = new PrismaClient();
 
 const EMAIL_TOKEN_EXPIRATION_MINUTES = 10;
 const AUTHENTICATION_EXPIRATION_HOURS = 12;
+const SECRET_KEY = 'Super Secret';
 
 // Generate a random 8-digit number as the email token
 function generateEmailToken(): string {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
+
+function generateAuthToken(tokenId: number): string {
+  const jwtPayLoad = { tokenId };
+  return jwt.sign(jwtPayLoad, SECRET_KEY, {
+    algorithm: 'HS256',
+    noTimestamp: true, // also note: we are not handling expirations here as it is handled on database layer
+  });
 }
 
 // Create a user if it doesn't exist
@@ -109,6 +119,8 @@ router.post('/authenticate', async (req, res) => {
       },
       data: { valid: false },
     });
+
+    //
 
     res.sendStatus(200);
   } catch (e) {
