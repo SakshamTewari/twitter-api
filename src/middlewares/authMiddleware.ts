@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+type AuthRequest = Request & { user?: User };
+
 const SECRET_KEY = 'Super secret';
 
 export async function authenticateToken(
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) {
@@ -28,12 +31,15 @@ export async function authenticateToken(
     });
 
     // if dbToken expirted or invalid
-    if (!dbToken?.valid || dbToken.expiration < new Date()) {
+    if (!dbToken || !dbToken?.valid || dbToken.expiration < new Date()) {
       return res.status(401).json({ error: 'API token expired' });
     }
 
-    console.log(dbToken.user);
+    // we need to add user to req so that next handlers can access it
+    req.user = dbToken.user; // note how I changed 'Request' to add 'user' property
   } catch (e) {
     return res.sendStatus(401);
   }
+
+  next();
 }
