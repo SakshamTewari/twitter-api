@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 type AuthRequest = Request & { user?: User };
 
-const SECRET_KEY = 'Super secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'SUPER SECRET';
 
 export async function authenticateToken(
   req: AuthRequest,
@@ -21,7 +21,7 @@ export async function authenticateToken(
 
   // decode the jwt token
   try {
-    const payload = (await jwt.verify(jwtToken, SECRET_KEY)) as {
+    const payload = (await jwt.verify(jwtToken, JWT_SECRET)) as {
       tokenId: number;
     };
 
