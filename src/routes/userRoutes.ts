@@ -26,8 +26,11 @@ router.post('/', async (req, res) => {
 });
 
 // List USers
+// We can use 'select' to set what fields we want to return for the user
 router.get('/', async (req, res) => {
-  const allUsers = await prisma.user.findMany();
+  const allUsers = await prisma.user.findMany({
+    select: { name: true, username: true, email: true, image: true },
+  });
   // res.status(501).json({error: 'Not implemented'});
   res.json(allUsers);
 });
