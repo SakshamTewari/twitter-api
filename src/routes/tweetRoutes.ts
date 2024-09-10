@@ -8,13 +8,15 @@ const prisma = new PrismaClient();
 
 // Create tweet
 router.post('/', async (req, res) => {
-  const { content, image, userId } = req.body;
+  const { content, image } = req.body; // not taking userId directly from body, but from authenticateToken middleware
+  // @ts-ignore
+  const user = req.user;
   try {
     const tweet = await prisma.tweet.create({
       data: {
         content,
         image,
-        userId, //TODO : manage based on auth user
+        userId: user.id, // manage based on auth user
       },
     });
     res.json(tweet);
@@ -50,7 +52,10 @@ router.get('/', async (req, res) => {
 // get one tweet
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const tweet = await prisma.tweet.findUnique({ where: { id: Number(id) } });
+  const tweet = await prisma.tweet.findUnique({
+    where: { id: Number(id) },
+    include: { user: true },
+  });
 
   if (!tweet) {
     return res.status(404).json({ error: 'Tweet Not found!!' });
