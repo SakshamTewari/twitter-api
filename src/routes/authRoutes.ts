@@ -89,13 +89,14 @@ router.post('/authenticate', async (req, res) => {
     }
 
     // check if the email from body is of the user who is providing the token
+    // validating that user is the owner of the email
     if (dbEmailToken?.user?.email !== email) {
       return res.status(401);
     }
 
     //   we are sure that the user is owner of the token
 
-    // generate an API token (JWT)
+    // generate an API token
     const expiration = new Date(
       new Date().getTime() + EMAIL_TOKEN_EXPIRATION_MINUTES * 60 * 60 * 1000,
     );
@@ -112,7 +113,7 @@ router.post('/authenticate', async (req, res) => {
       },
     });
 
-    // Invalidate the emailToken after generating JWT so user cannot use that again
+    // Invalidate the emailToken after generating API token so user cannot use that again
     await prisma.token.update({
       where: {
         id: dbEmailToken.id,
@@ -120,9 +121,10 @@ router.post('/authenticate', async (req, res) => {
       data: { valid: false },
     });
 
-    //
+    // Generate the JWT token
+    const authToken = generateAuthToken(apiToken.id);
 
-    res.sendStatus(200);
+    res.json({ authToken });
   } catch (e) {
     res.status(400).json({ error: 'Authentication failed' });
   }
