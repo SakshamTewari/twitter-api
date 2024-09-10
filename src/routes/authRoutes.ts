@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 const EMAIL_TOKEN_EXPIRATION_MINUTES = 10;
 const AUTHENTICATION_EXPIRATION_HOURS = 12;
-const SECRET_KEY = 'Super Secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'SUPER SECRET';
 
 // Generate a random 8-digit number as the email token
 function generateEmailToken(): string {
@@ -17,7 +17,7 @@ function generateEmailToken(): string {
 
 function generateAuthToken(tokenId: number): string {
   const jwtPayLoad = { tokenId };
-  return jwt.sign(jwtPayLoad, SECRET_KEY, {
+  return jwt.sign(jwtPayLoad, JWT_SECRET, {
     algorithm: 'HS256',
     noTimestamp: true, // also note: we are not handling expirations here as it is handled on database layer
   });
